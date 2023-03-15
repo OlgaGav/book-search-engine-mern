@@ -1,5 +1,12 @@
 const express = require('express');
-const { ApolloServer } = require('apollo-server-express');
+const { ApolloServer } = require('@apollo/server');
+const { startStandaloneServer } = require('@apollo/server/standalone');
+const { expressMiddleware } = require ('@apollo/server/express4');
+const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
+const http = require('http');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
 const path = require('path');
 
 const { typeDefs, resolvers } = require('./schemas');
@@ -10,10 +17,10 @@ const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
 
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
@@ -26,8 +33,12 @@ app.get('/', (req, res) => {
 
 // Create a new instance of an Apollo server with the GraphQL schema
 const startApolloServer = async (typeDefs, resolvers) => {
-  await server.start();
-  server.applyMiddleware({ app });
+  await server.start();  
+  app.use(
+    cors(),
+    expressMiddleware(server),
+  );
+  
   
   db.once('open', () => {
     app.listen(PORT, () => {
