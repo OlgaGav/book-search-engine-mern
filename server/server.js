@@ -2,8 +2,6 @@ const express = require('express');
 const { ApolloServer } = require('@apollo/server');
 const { startStandaloneServer } = require('@apollo/server/standalone');
 const { expressMiddleware } = require ('@apollo/server/express4');
-const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
-const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -17,7 +15,6 @@ const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -43,7 +40,7 @@ const startApolloServer = async (typeDefs, resolvers) => {
   db.once('open', () => {
     app.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
-      console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
     })
   })
   };
