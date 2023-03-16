@@ -76,28 +76,3 @@ export const USER_BY_ID = gql`
   }
 `;
 
-const SEARCH_GOOGLE_BOOKS = async (query) => {
-  const graphqlQuery = gql`
-    query SearchGoogleBooks($query: String!) {
-      searchBooks(query: $query) {
-        items {
-          id
-          volumeInfo {
-            title
-            authors
-          }
-        }
-      }
-    }
-  `;
-
-  const variables = { query };
-  const endpoint = 'https://www.googleapis.com/books/v1/graphql';
-
-  try {
-    const response = await client.request(graphqlQuery, variables, endpoint);
-    return response.searchBooks.items;
-  } catch (error) {
-    console.error(error);
-  }
-};
